@@ -16,50 +16,37 @@
     <script>
         // Our Javascript will go here.
 
-        /* 1. Creating the scene
-        To actually be able to display anything with three.js, 
-        we need three things: scene, camera and renderer, 
-        so that we can render the scene with camera.
-        */
+        //Let's say you want to draw a line or a circle, not a wireframe Mesh. First we need to set up the renderer, scene and camera (see the Creating a scene page).
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+        camera.position.set(0, 0, 100);
+        camera.lookAt(0, 0, 0);
 
         const scene = new THREE.Scene();
 
-        //There are a few different cameras in three.js. For now, let's use a PerspectiveCamera.
-        //The first attribute is the field of view. FOV is the extent of the scene that is seen on the display at any given moment. The value is in degrees.
-        //The second one is the aspect ratio. You almost always want to use the width of the element divided by the height, or you'll get the same result as when you play old movies on a widescreen TV - the image looks squished.
-        //The next two attributes are the near and far clipping plane. What that means, is that objects further away from the camera than the value of far or closer than near won't be rendered. You don't have to worry about this now, but you may want to use other values in your apps to get better performance.
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        //Next thing we will do is define a material. For lines we have to use LineBasicMaterial or LineDashedMaterial.
+        //create a blue LineBasicMaterial
+        const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
 
-        //Next up is the renderer. This is where the magic happens. In addition to the WebGLRenderer we use here, three.js comes with a few others, often used as fallbacks for users with older browsers or for those who don't have WebGL support for some reason.
-        const renderer = new THREE.WebGLRenderer();
-        //In addition to creating the renderer instance, we also need to set the size at which we want it to render our app. It's a good idea to use the width and height of the area we want to fill with our app - in this case, the width and height of the browser window. For performance intensive apps, you can also give setSize smaller values, like window.innerWidth/2 and window.innerHeight/2, which will make the app render at half size.
-        //If you wish to keep the size of your app but render it at a lower resolution, you can do so by calling setSize with false as updateStyle (the third argument). For example, setSize(window.innerWidth/2, window.innerHeight/2, false) will render your app at half resolution, given that your <canvas> has 100% width and height.
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        //After material we will need a geometry with some vertices:
+        const points = [];
+        points.push(new THREE.Vector3(- 10, 0, 0));
+        points.push(new THREE.Vector3(0, 10, 0));
+        points.push(new THREE.Vector3(10, 0, 0));
 
-        //Last but not least, we add the renderer element to our HTML document. This is a <canvas> element the renderer uses to display the scene to us.
-        document.body.appendChild(renderer.domElement);
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
-        //To create a cube, we need a BoxGeometry. This is an object that contains all the points (vertices) and fill (faces) of the cube. 
-        const geometry = new THREE.BoxGeometry();
-        //In addition to the geometry, we need a material to color it. Three.js comes with several materials, but we'll stick to the MeshBasicMaterial for now. All materials take an object of properties which will be applied to them. To keep things very simple, we only supply a color attribute of 0x00ff00, which is green. This works the same way that colors work in CSS or Photoshop (hex colors).
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        //The third thing we need is a Mesh. A mesh is an object that takes a geometry, and applies a material to it, which we then can insert to our scene, and move freely around.
-        const cube = new THREE.Mesh(geometry, material);
-        //By default, when we call scene.add(), the thing we add will be added to the coordinates (0,0,0). This would cause both the camera and the cube to be inside each other. To avoid this, we simply move the camera out a bit.
-        scene.add(cube);
-        camera.position.z = 5;
+        //Note that lines are drawn between each consecutive pair of vertices, but not between the first and last (the line is not closed.)
+        //Now that we have points for two lines and a material, we can put them together to form a line.
+        const line = new THREE.Line( geometry, material );
 
-        //This will create a loop that causes the renderer to draw the scene every time the screen is refreshed (on a typical screen this means 60 times per second). If you're new to writing games in the browser, you might say "why don't we just create a setInterval ?" The thing is - we could, but requestAnimationFrame has a number of advantages. Perhaps the most important one is that it pauses when the user navigates to another browser tab, hence not wasting their precious processing power and battery life.
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            //This will be run every frame (normally 60 times per second), and give the cube a nice rotation animation. Basically, anything you want to move or change while the app is running has to go through the animate loop. You can of course call other functions from there, so that you don't end up with a animate function that's hundreds of lines.
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
+        //All that's left is to add it to the scene and call render.
+        scene.add( line );
+        renderer.render( scene, camera );
 
-            renderer.render(scene, camera);
-        }
-        animate();
     </script>
 </body>
 
