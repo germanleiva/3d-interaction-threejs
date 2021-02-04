@@ -52,6 +52,11 @@
         //This will create a loop that causes the renderer to draw the scene every time the screen is refreshed (on a typical screen this means 60 times per second). If you're new to writing games in the browser, you might say "why don't we just create a setInterval ?" The thing is - we could, but requestAnimationFrame has a number of advantages. Perhaps the most important one is that it pauses when the user navigates to another browser tab, hence not wasting their precious processing power and battery life.
         function animate() {
             requestAnimationFrame(animate);
+            
+            //This will be run every frame (normally 60 times per second), and give the cube a nice rotation animation. Basically, anything you want to move or change while the app is running has to go through the animate loop. You can of course call other functions from there, so that you don't end up with a animate function that's hundreds of lines.
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+
             renderer.render(scene, camera);
         }
         animate();
